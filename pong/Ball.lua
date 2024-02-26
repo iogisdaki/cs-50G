@@ -9,6 +9,22 @@ function Ball:init(x, y, width, height)
     self.dy = math.random(-50, 50)
 end
 
+function Ball:collides(paddle)
+    -- check to see if the left edge of either is farther to the right
+    -- than the right edge of the other
+    if self.x > paddle.x + paddle.width or paddle.x > self.x + self.width then
+        return false
+    end
+
+    --check to see if the bottom edge of either is higher than the top
+    -- edge of the other
+    if self.y > paddle.y + paddle.height or paddle.y > self.y + self.height then
+        return false
+    end
+    
+    return true
+end
+
 function Ball:update(dt)
     self.x = self.x + self.dx * dt
     self.y = self.y + self.dy * dt

@@ -19,9 +19,12 @@ PADDLE_SPEED = 200
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest') -- nearest neighbour filtering
 
+    love.window.setTitle('Pong')
+
     math.randomseed(os.time())
 
     smallFont = love.graphics.newFont('font.ttf', 8)
+    scoreFont = love.graphics.newFont('font.ttf', 32)
 
     love.graphics.setFont(smallFont)
 
@@ -30,6 +33,9 @@ function love.load()
         resizable = false,
         vsync = true -- (vertical sync) synced to monitor refresh rate
     })
+
+    player1Score = 0
+    player2Score = 0
 
     player1 = Paddle(10, 30, 5, 20)
     player2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
@@ -41,6 +47,42 @@ end
 
 -- runs every frame
 function love.update(dt)
+    if gameState == 'play' then
+        if ball:collides(player1) then
+            ball.dx = -ball.dx * 1.03 -- reverse dx and slightly increase it
+            ball.x = player1.x + 5 -- move the ball away from player 1's paddle
+
+            -- keep velocity going in the same direction, but randomize it so the ball doesnt always bounce back in the same direction
+            if ball.dy < 0 then 
+                ball.dy = -math.random(10, 150)
+            else
+                ball.dy = math.random(10, 150)
+            end
+        end
+
+        if ball:collides(player2) then
+            ball.dx = -ball.dx * 1.03 -- reverse dx and slightly increase it
+            ball.x = player2.x - 4 -- move the ball away from player 2's paddle
+
+            -- keep velocity going in the same direction, but randomize it so the ball doesnt always bounce back in the same direction
+            if ball.dy < 0 then
+                ball.dy = -math.random(10, 150)
+            else
+                ball.dy = math.random(10, 150)
+            end
+        end
+
+        -- detect upper and lower screen boundary collision and reverse if collided
+        if ball.y <= 0 then
+            ball.y = 0
+            ball.dy = -ball.dy
+        end
+        if ball.y >= VIRTUAL_HEIGHT - 4 then
+            ball.y = VIRTUAL_HEIGHT - 4  -- -4 to account for the ball's size
+            ball.dy = -ball.dy
+        end
+    end
+
     -- player 1 movement
     if love.keyboard.isDown('w') then
         player1.dy = -PADDLE_SPEED
@@ -88,7 +130,7 @@ function love.draw()
 
     -- clear the screen with this colour
     love.graphics.clear(40/255, 45/255, 52/255, 255/255)
-    
+
     love.graphics.setFont(smallFont)
     if gameState == 'start' then
         love.graphics.printf('Hello Start State!', 0, 20, VIRTUAL_WIDTH, 'center')
@@ -96,13 +138,13 @@ function love.draw()
         love.graphics.printf('Hello Play State!', 0, 20, VIRTUAL_WIDTH, 'center')
     end
     -- print scores
-    -- love.graphics.setFont(scoreFont)
-    -- love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
-    -- love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
+    love.graphics.setFont(scoreFont)
+    love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
+    love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
 
     player1:render()
     player2:render()
     ball:render()
-    
+      
     push:apply('end')
 end
