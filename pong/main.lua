@@ -37,6 +37,8 @@ function love.load()
     player1Score = 0
     player2Score = 0
 
+    servingPlayer = 1
+
     player1 = Paddle(10, 30, 5, 20)
     player2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
     ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
@@ -47,7 +49,15 @@ end
 
 -- runs every frame
 function love.update(dt)
-    if gameState == 'play' then
+    if gameState == 'serve' then
+        -- initialize ball's velocity based on player who last scored
+        ball.dy = math.random(-50, 50)
+        if servingPlayer == 1 then
+            ball.dx = math.random(140, 200)
+        else
+            ball.dx = -math.random(140, 200)
+        end
+    elseif gameState == 'play' then
         if ball:collides(player1) then
             ball.dx = -ball.dx * 1.03 -- reverse dx and slightly increase it
             ball.x = player1.x + 5 -- move the ball away from player 1's paddle
@@ -83,6 +93,20 @@ function love.update(dt)
         end
     end
 
+    -- if the ball reaches the left or right edge of the screen go to serve and update the score
+    if ball.x < 0 then
+        servingPlayer = 1
+        player2Score = player2Score + 1
+        ball:reset()
+        gameState = 'serve'
+    end
+    if ball.x > VIRTUAL_WIDTH then
+        servingPlayer = 2
+        player1Score = player1Score + 1
+        ball:reset()
+        gameState = 'serve'
+    end
+
     -- player 1 movement
     if love.keyboard.isDown('w') then
         player1.dy = -PADDLE_SPEED
@@ -114,12 +138,13 @@ end
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
+    -- if we press enter during either the start or serve phase, it should
+    -- transition to the next appropriate state
     elseif key == 'enter' or key == 'return' then
         if gameState == 'start' then
+            gameState = 'serve'
+        elseif gameState == 'serve' then
             gameState = 'play'
-        else
-            gameState = 'start'
-            ball:reset()
         end
     end
 end
@@ -131,12 +156,17 @@ function love.draw()
     -- clear the screen with this colour
     love.graphics.clear(40/255, 45/255, 52/255, 255/255)
 
-    love.graphics.setFont(smallFont)
     if gameState == 'start' then
-        love.graphics.printf('Hello Start State!', 0, 20, VIRTUAL_WIDTH, 'center')
-    else
-        love.graphics.printf('Hello Play State!', 0, 20, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Welcome to Pong!', 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Enter to begin!', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'serve' then
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Player ' .. tostring(servingPlayer) .. "'s serve!", 
+            0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Enter to serve!', 0, 20, VIRTUAL_WIDTH, 'center')
     end
+
     -- print scores
     love.graphics.setFont(scoreFont)
     love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
@@ -145,6 +175,6 @@ function love.draw()
     player1:render()
     player2:render()
     ball:render()
-      
+
     push:apply('end')
 end
