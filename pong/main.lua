@@ -14,7 +14,7 @@ WINDOW_HEIGHT = 1500
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
 
-PADDLE_SPEED = 200
+PADDLE_SPEED = 160
 
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest') -- nearest neighbour filtering
