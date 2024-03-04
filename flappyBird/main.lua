@@ -1,4 +1,6 @@
 push = require 'push'
+Class = require "class"
+require 'Bird'
 
 WINDOW_WIDTH = 2700
 WINDOW_HEIGHT = 1512
@@ -7,12 +9,14 @@ VIRTUAL_WIDTH = 900
 VIRTUAL_HEIGHT = 504
 
 -- scope is the file
-local background = love.graphics.newImage('background.png')
+local background = love.graphics.newImage('sprites/background.png')
 
-local ground = love.graphics.newImage('ground.png')
+local ground = love.graphics.newImage('sprites/ground.png')
 local groundScroll = 0
 local GROUND_SPEED = 60
 local GROUND_LOOPING_POINT = 200
+
+local bird = Bird()
 
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -47,5 +51,6 @@ function love.draw()
     -- goes backwards
     love.graphics.draw(background, 0, 0)
     love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT - 16)
+    bird:render()
     push:finish()
 end
