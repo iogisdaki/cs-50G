@@ -26,6 +26,9 @@ function love.load()
         fullscreen = false,
         resizable = false
     })
+
+    -- adding a key pressed table to keyboard
+    love.keyboard.keyPressed = {}
 end
 
 function love.resize(w, h)
@@ -33,8 +36,18 @@ function love.resize(w, h)
 end
 
 function love.keypressed(key)
+    love.keyboard.keyPressed[key] = true
+
     if key == 'escape' then
         love.event.quit()
+    end
+end
+
+function love.keyboard.wasPressed(key)
+    if love.keyboard.keyPressed[key] then
+        return true
+    else
+        return false
     end
 end
 
@@ -43,7 +56,8 @@ function love.update(dt)
     -- times dt to stay framerate independent
     -- modulus to loop back around
     groundScroll = (groundScroll + GROUND_SPEED * dt) % GROUND_LOOPING_POINT
-
+    bird:update(dt)
+    love.keyboard.keyPressed = {}
 end
 
 function love.draw()
