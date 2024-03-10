@@ -24,3 +24,14 @@ function Bird:update(dt)
         self.dy = ANTIGRAVITY
     end
 end
+
+function Bird:collides(pipePair)
+    -- both offsets are used to shrink the bounding box to give the player a little bit of freedom with the collision
+    if (self.x + 2) + (self.width - 4) >= pipePair.x and self.x + 2 <= pipePair.x + pipePair.width then
+        if (self.y + 2) + (self.height - 4) >= pipePair.bottom_y and self.y + 2 <= pipePair.bottom_y + pipePair.height or
+        (self.y + 2) + (self.height - 4) >= pipePair.top_y and self.y + 2 <= pipePair.top_y + pipePair.height then  
+        return true
+        end
+    end
+    return false
+end

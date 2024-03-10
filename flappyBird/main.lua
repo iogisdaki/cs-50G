@@ -23,6 +23,8 @@ local pipes = {}
 local spawnTimer = 0
 local nextSpawnTime = 0
 
+local running = true
+
 function love.load()
     math.randomseed(os.time())
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -60,28 +62,32 @@ function love.keyboard.wasPressed(key)
 end
 
 function love.update(dt)
-    -- calculate ground scroll amount
-    -- times dt to stay framerate independent
-    -- modulus to loop back around
-    groundScroll = (groundScroll + GROUND_SPEED * dt) % GROUND_LOOPING_POINT
-    bird:update(dt)
+    if running then
+        -- calculate ground scroll amount
+        -- times dt to stay framerate independent
+        -- modulus to loop back around
+        groundScroll = (groundScroll + GROUND_SPEED * dt) % GROUND_LOOPING_POINT
+        bird:update(dt)
 
-    spawnTimer = spawnTimer + dt
-    if spawnTimer > nextSpawnTime then
-        -- add new pipe objext to the table pipes
-        table.insert(pipes, Pipes())
-        spawnTimer = 0
-        nextSpawnTime = math.random(2, 3)
-    end
+        spawnTimer = spawnTimer + dt
+        if spawnTimer > nextSpawnTime then
+            -- add new pipe objext to the table pipes
+            table.insert(pipes, Pipes())
+            spawnTimer = 0
+            nextSpawnTime = math.random(2, 3)
+        end
 
-    -- key-pipe pair in the table
-    for k, pipe in pairs(pipes) do
-        pipe:update(dt)
-        if pipe.x < -pipe.width then
-            table.remove(pipes, k)
+        -- key-pipe pair in the table
+        for k, pipePair in pairs(pipes) do
+            pipePair:update(dt)
+            if bird:collides(pipePair) then
+                running = false
+            end
+            if pipePair.x < -pipePair.width then
+                table.remove(pipes, k)
+            end
         end
     end
-
     love.keyboard.keyPressed = {}
 end
 
