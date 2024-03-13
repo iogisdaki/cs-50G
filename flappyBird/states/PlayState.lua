@@ -5,6 +5,7 @@ function PlayState:init()
     self.pipes = {}
     self.spawnTimer = 0
     self.nextSpawnTime = math.random(2, 6)
+    self.score = 0
 end
 
 function PlayState:update(dt)
@@ -17,6 +18,12 @@ function PlayState:update(dt)
     end
     -- key-pipe pair in the table
     for k, pipePair in pairs(self.pipes) do
+        if not pipePair.scored then
+            if pipePair.x + pipePair.width < self.bird.x then
+                self.score = self.score + 1
+                pipePair.scored = true
+            end
+        end
         pipePair:update(dt)
     end
     -- we need this second loop, rather than deleting in the previous loop, because
@@ -33,13 +40,17 @@ function PlayState:update(dt)
 
     for k, pipePair in pairs(self.pipes) do
         if self.bird:collides(pipePair) then
-            gStateMachine:change('title')
+            gStateMachine:change('score', {
+                score = self.score
+            })
         end
     end
 
-     -- if self.bird touches the ground
+     -- if bird touches the ground
      if self.bird.y > VIRTUAL_HEIGHT - 15 then
-        gStateMachine:change('title')
+        gStateMachine:change('score', {
+            score = self.score
+        })
     end
 end
 
@@ -47,5 +58,7 @@ function PlayState:render()
     for k, pipe in pairs(self.pipes) do
         pipe:render()
     end
+    love.graphics.setFont(flappyFont)
+    love.graphics.print('Score: ' .. tostring(self.score), 8, 8)
     self.bird:render()
 end

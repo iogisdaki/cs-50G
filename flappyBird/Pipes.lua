@@ -10,6 +10,7 @@ function Pipes:init()
     self.x = VIRTUAL_WIDTH
     self.bottom_y = math.random(self.height, self.height * 1.39)
     self.top_y = self.bottom_y - self.height - 100
+    self.scored = false
 end
 
 function Pipes:update(dt)
