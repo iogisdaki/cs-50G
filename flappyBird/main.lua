@@ -1,7 +1,12 @@
 push = require 'push'
 Class = require "class"
 require 'Bird'
-require 'Pipes' 
+require 'Pipes'
+
+require 'StateMachine'
+require 'states/BaseState'
+require 'states/PlayState'
+require 'states/TitleScreenState'
 
 WINDOW_WIDTH = 2700
 WINDOW_HEIGHT = 1512
@@ -17,25 +22,32 @@ local groundScroll = 0
 local GROUND_SPEED = 60
 local GROUND_LOOPING_POINT = 200
 
-local bird = Bird()
-
-local pipes = {}
-local spawnTimer = 0
-local nextSpawnTime = 0
-
-local running = true
-
 function love.load()
     math.randomseed(os.time())
     love.graphics.setDefaultFilter('nearest', 'nearest')
     love.window.setTitle('Flappy Bird')
+
+    smallFont = love.graphics.newFont('font.ttf', 8)
+    mediumFont = love.graphics.newFont('flappy.ttf', 14)
+    flappyFont = love.graphics.newFont('flappy.ttf', 28)
+    hugeFont = love.graphics.newFont('flappy.ttf', 56)
+    love.graphics.setFont(flappyFont)
+
+
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         vsync = true,
         fullscreen = false,
         resizable = false
     })
 
-    nextSpawnTime = math.random(2, 6)
+    -- g is a convention for global
+    -- stateMachine takes in a table with keys that map to functions that return the states 
+    gStateMachine = StateMachine {
+        ['title'] = function() return TitleScreenState() end,
+        ['play'] = function () return PlayState() end,
+    }
+    gStateMachine:change('title')
+
 
     -- adding a key pressed table to keyboard
     love.keyboard.keyPressed = {}
@@ -47,7 +59,6 @@ end
 
 function love.keypressed(key)
     love.keyboard.keyPressed[key] = true
-
     if key == 'escape' then
         love.event.quit()
     end
@@ -62,32 +73,11 @@ function love.keyboard.wasPressed(key)
 end
 
 function love.update(dt)
-    if running then
-        -- calculate ground scroll amount
-        -- times dt to stay framerate independent
-        -- modulus to loop back around
-        groundScroll = (groundScroll + GROUND_SPEED * dt) % GROUND_LOOPING_POINT
-        bird:update(dt)
-
-        spawnTimer = spawnTimer + dt
-        if spawnTimer > nextSpawnTime then
-            -- add new pipe objext to the table pipes
-            table.insert(pipes, Pipes())
-            spawnTimer = 0
-            nextSpawnTime = math.random(2, 3)
-        end
-
-        -- key-pipe pair in the table
-        for k, pipePair in pairs(pipes) do
-            pipePair:update(dt)
-            if bird:collides(pipePair) then
-                running = false
-            end
-            if pipePair.x < -pipePair.width then
-                table.remove(pipes, k)
-            end
-        end
-    end
+    -- calculate ground scroll amount
+    -- times dt to stay framerate independent
+    -- modulus to loop back around
+    groundScroll = (groundScroll + GROUND_SPEED * dt) % GROUND_LOOPING_POINT
+    gStateMachine:update(dt)
     love.keyboard.keyPressed = {}
 end
 
@@ -95,11 +85,8 @@ function love.draw()
     push:start()
     -- goes backwards
     love.graphics.draw(background, 0, 0)
-    -- the order of drawing the pipes matters so that they look like they are sticking out of the ground
-    for k, pipe in pairs(pipes) do
-        pipe:render()
-    end
+    -- the order of drawing matters
+    gStateMachine:render()
     love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT - 16)
-    bird:render()
     push:finish()
 end
