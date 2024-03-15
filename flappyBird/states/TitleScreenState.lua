@@ -3,7 +3,7 @@ TitleScreenState = Class{__includes = BaseState} -- this is the way to inherite 
 function TitleScreenState:update(dt)
     -- if enter is pressed from title screen state change state to play
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        gStateMachine:change('play')
+        gStateMachine:change('countdown')
     end
 end
 
