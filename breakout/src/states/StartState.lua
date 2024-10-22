@@ -9,6 +9,15 @@ function StartState:update()
         highlightedOption = highlightedOption == 1 and 2 or 1
         gSounds['paddle-hit']:play()
     end
+ 
+    -- it sees enter key as return
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        gSounds['confirm']:play()
+        if highlightedOption == 1 then
+            gStateMachine:change('play')
+        end
+    end
+
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
     end

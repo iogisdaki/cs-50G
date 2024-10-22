@@ -1,3 +1,4 @@
+-- change the state externally and in main run the state machine generally and it will run the specified states functions
 StateMachine = Class{}
 
 function StateMachine:init(states)

@@ -6,5 +6,9 @@ require 'src/Constants'
 -- game states smoothly and avoid monolithic code in one file
 require 'src/StateMachine'
 
+require 'src/Util'
+require 'src.Paddle'
+
 require 'src/states/BaseState'
 require 'src/states/StartState'
+require 'src.states.PlayState'
