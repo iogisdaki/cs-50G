@@ -1,1 +1,1 @@
-note: open folders seperatelly beacause there are global name conflicts
+note: open each game folders seperatelly beacause there are global name conflicts
