@@ -59,3 +59,31 @@ function GeneratePaddles(sheet)
     end
     return quads
 end
+
+function GenerateBalls(sheet)
+    -- offset for the 4 top ball sprites
+    local x = 96
+    local y = 48
+
+    local counter = 1
+    local quads = {}
+
+    for i = 0, 3 do
+        -- the balls are 8 pixels wide and tall
+        quads[counter] = love.graphics.newQuad(x, y, 8, 8, sheet:getDimensions())
+        x = x + 8
+        counter = counter + 1
+    end
+
+    -- offset for the 3 bottom balls
+    x = 96
+    y = 56
+
+    for i = 0, 2 do
+        quads[counter] = love.graphics.newQuad(x, y, 8, 8, sheet:getDimensions())
+        x = x + 8
+        counter = counter + 1
+    end
+    
+    return quads
+end

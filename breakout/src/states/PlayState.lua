@@ -4,6 +4,14 @@ function PlayState:init()
     -- initiate paddle object
     self.paddle = Paddle()
     self.paused = false
+
+    -- skin = 1
+    self.ball = Ball(1)
+    self.ball.dx = math.random(-200 , 200)
+    self.ball.dy = math.random(-50, -60)
+    -- position at the center
+    self.ball.x = VIRTUAL_WIDTH / 2 - 4
+    self.ball.y = VIRTUAL_HEIGHT - 42
 end
 
 function PlayState:update(dt)
@@ -21,6 +29,13 @@ function PlayState:update(dt)
     end
 
     self.paddle:update(dt)
+    self.ball:update(dt)
+
+    if self.ball:collides(self.paddle) then
+        -- reverse velocity to bounce
+        self.ball.dy = -self.ball.dy
+        gSounds['paddle-hit']:play()
+    end
 
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
@@ -29,6 +44,7 @@ end
 
 function PlayState:render()
     self.paddle:render()
+    self.ball:render()
 
     -- if paused print paused text 
     if self.paused then
