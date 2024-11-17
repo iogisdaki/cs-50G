@@ -11,8 +11,9 @@ function Ball:init(skin)
     self.skin = skin
 end
 
+-- simple aabb collision
 function Ball:collides(target)
-    -- Check if ball collides with target
+    -- check if ball collides with target
     if self.x > target.x + target.width or target.x > self.x + self.width then
         return false
     end
@@ -34,7 +35,7 @@ function Ball:update(dt)
     self.x = self.x + self.dx * dt
     self.y = self.y + self.dy * dt
 
-    -- Make ball bounce off the walls
+    -- make ball bounce off the walls
     if self.x <= 0 then
         self.x = 0
         self.dx = -self.dx

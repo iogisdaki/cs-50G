@@ -11,7 +11,7 @@ function GenerateQuads(sheet, tileWidth, tileHeight)
     -- iterate through each tile and save it in an array as a quad
     for y = 0, numberOfTilesInHeight - 1 do 
         for x = 0, numberOfTilesInWidth - 1 do
-            tiles[tileCounter] = love.graphics.newQuad(x * tileWidth, y * tileHeight, tileWidth, sheet:getDimensions())
+            tiles[tileCounter] = love.graphics.newQuad(x * tileWidth, y * tileHeight, tileWidth, tileHeight, sheet:getDimensions())
             tileCounter = tileCounter + 1
         end
     end
@@ -30,11 +30,15 @@ function table.slice(tbl, first, last, step)
     return sliced
 end
 
+function GenerateBricks(sheet)
+    -- divide sheet 32 by 16 pieces(first 21 bricks)
+    return table.slice(GenerateQuads(sheet, 32, 16), 1, 21)
+end
 
 function GeneratePaddles(sheet)
     -- every quad has a height of 16
     local x = 0
-    local y = 64 
+    local y = 64
 
     local quadsCounter = 1
     local quads = {}

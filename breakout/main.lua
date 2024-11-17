@@ -23,7 +23,8 @@ function love.load()
 
     gFrames = {
         ['paddles'] = GeneratePaddles(gTextures['main']),
-        ['balls'] = GenerateBalls(gTextures['main'])
+        ['balls'] = GenerateBalls(gTextures['main']),
+        ['bricks'] = GenerateBricks(gTextures['main'])
     }
 
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
