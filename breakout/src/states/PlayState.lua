@@ -1,20 +1,16 @@
 PlayState = Class { __includes = BaseState }
 
-function PlayState:init()
-    -- initiate paddle object
-    self.paddle = Paddle()
-    self.paused = false
+-- We now initialize what's in our PlayState via a state table that we pass between states as we go from playing to serving.
+function PlayState:enter(params)
+    self.paddle = params.paddle
+    self.bricks = params.bricks
+    self.heartNumber = params.heartNumber
+    self.score = params.score
+    self.ball = params.ball
 
-    -- ball skin = 1
-    self.ball = Ball(1)
-    -- random starting velocity
+    -- give ball random starting velocity
     self.ball.dx = math.random(-200, 200)
     self.ball.dy = math.random(-50, -60)
-    -- position at the center
-    self.ball.x = VIRTUAL_WIDTH / 2 - 4
-    self.ball.y = VIRTUAL_HEIGHT - 42
-
-    self.bricks = LevelMaker.createBricks()
 end
 
 function PlayState:update(dt)
@@ -57,6 +53,7 @@ function PlayState:update(dt)
     for k, brick in pairs(self.bricks) do
         if brick.shouldBeRendered and self.ball:collides(brick) then
             brick:hit()
+            self.score = self.score + 10
 
             -- determine velocity and position of the ball
             -- if the ball hits on the left side of the brick and its moving right
@@ -85,6 +82,25 @@ function PlayState:update(dt)
         end
     end
 
+    -- if ball goes below bounds, decrease health and go to serve state
+    if self.ball.y >= VIRTUAL_HEIGHT then
+        self.heartNumber = self.heartNumber - 1
+        gSounds['hurt']:play()
+
+        if self.heartNumber == 0 then
+            gStateMachine:change('game-over', {
+                score = self.score
+            })
+        else
+            gStateMachine:change('serve', {
+                paddle = self.paddle,
+                bricks = self.bricks,
+                heartNumber = self.heartNumber,
+                score = self.score
+            })
+        end
+    end
+
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
     end
@@ -97,6 +113,12 @@ function PlayState:render()
     for k, brick in pairs(self.bricks) do
         brick:render()
     end
+
+    self.paddle:render()
+    self.ball:render()
+
+    renderScore(self.score)
+    renderHealth(self.heartNumber)
 
     -- if paused print paused text
     if self.paused then

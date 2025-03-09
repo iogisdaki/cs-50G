@@ -1,15 +1,17 @@
 require 'src/Dependencies'
 
 function love.load()
-    
     love.graphics.setDefaultFilter('nearest', 'nearest') -- nearest neighbour filtering
     love.window.setTitle('Breakout')
 
+    -- seed the RNG so that calls to random are always random
+    math.randomseed(os.time())
+
     -- (g for global) text fonts
     gFonts = {
-    ['small'] = love.graphics.newFont('fonts/font.ttf', 8),
-    ['medium'] = love.graphics.newFont('fonts/font.ttf', 16),
-    ['large'] = love.graphics.newFont('fonts/font.ttf', 32)
+        ['small'] = love.graphics.newFont('fonts/font.ttf', 8),
+        ['medium'] = love.graphics.newFont('fonts/font.ttf', 16),
+        ['large'] = love.graphics.newFont('fonts/font.ttf', 32)
     }
     love.graphics.setFont(gFonts['small'])
 
@@ -24,7 +26,8 @@ function love.load()
     gFrames = {
         ['paddles'] = GeneratePaddles(gTextures['main']),
         ['balls'] = GenerateBalls(gTextures['main']),
-        ['bricks'] = GenerateBricks(gTextures['main'])
+        ['bricks'] = GenerateBricks(gTextures['main']),
+        ['hearts'] = GenerateQuads(gTextures['hearts'], 10, 9)
     }
 
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
@@ -52,8 +55,10 @@ function love.load()
     }
 
     gStateMachine = StateMachine {
-        ['start'] = function () return StartState() end,
-        ['play'] = function () return PlayState() end
+        ['start'] = function() return StartState() end,
+        ['play'] = function() return PlayState() end,
+        ['serve'] = function() return ServeState() end,
+        ['game-over'] = function() return GameOverState() end
     }
     gStateMachine:change('start')
 
@@ -86,18 +91,40 @@ end
 function love.draw()
     -- begin drawing with push, in our virtual resolution
     push:apply('start')
-    
+
     -- background should be drawn regardless of state
     local backgroundWidth = gTextures['background']:getWidth()
     local backgroundHeight = gTextures['background']:getHeight()
 
-    love.graphics.draw(gTextures['background'], 
+    love.graphics.draw(gTextures['background'],
         -- draw at coordinates 0, 0 and no rotation
-        0, 0, 
+        0, 0,
         0,
         -- scale factors on X and Y axis so it fills the screen
         VIRTUAL_WIDTH / (backgroundWidth - 1), VIRTUAL_HEIGHT / (backgroundHeight - 1))
-    
+
     gStateMachine:render()
     push:apply('end')
+end
+
+function renderHealth(heartNumber)
+    local positionX = VIRTUAL_WIDTH - 100
+
+    -- render health (full hearts)
+    for i = 1, heartNumber do
+        love.graphics.draw(gTextures['hearts'], gFrames['hearts'][1], positionX, 4)
+        positionX = positionX + 11
+    end
+
+    -- render missing health (empty hearts)
+    for i = 1, 3 - heartNumber do
+        love.graphics.draw(gTextures['hearts'], gFrames['hearts'][2], positionX, 4)
+        positionX = positionX + 11
+    end
+end
+
+function renderScore(score)
+    love.graphics.setFont(gFonts['small'])
+    love.graphics.print('Score:', VIRTUAL_WIDTH - 60, 5)
+    love.graphics.printf(tostring(score), VIRTUAL_WIDTH - 50, 5, 40, 'right')
 end
