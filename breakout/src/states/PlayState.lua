@@ -53,8 +53,9 @@ function PlayState:update(dt)
     for k, brick in pairs(self.bricks) do
         if brick.shouldBeRendered and self.ball:collides(brick) then
             brick:hit()
-            self.score = self.score + 10
-
+            -- add to score based on tier and colour
+            self.score = self.score + (brick.tier * 200 + brick.colour * 25)
+            
             -- determine velocity and position of the ball
             -- if the ball hits on the left side of the brick and its moving right
             if self.ball.x + 2 < brick.x and self.ball.dx > 0 then

@@ -18,7 +18,7 @@ function ServeState:update(dt)
     self.ball.x = self.paddle.x + (self.paddle.width / 2) - 4
     self.ball.y = self.paddle.y - 8
 
-    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+    if love.keyboard.wasPressed('space') or love.keyboard.wasPressed('return') then
         gStateMachine:change('play', {
             paddle = self.paddle,
             bricks = self.bricks,
@@ -45,6 +45,6 @@ function ServeState:render()
     renderHealth(self.heartNumber)
 
     love.graphics.setFont(gFonts['medium'])
-    love.graphics.printf('Press Enter to serve!', 0, VIRTUAL_HEIGHT / 2,
+    love.graphics.printf('Press Space to serve!', 0, VIRTUAL_HEIGHT / 2,
         VIRTUAL_WIDTH, 'center')
 end

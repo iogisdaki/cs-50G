@@ -10,13 +10,17 @@ function LevelMaker.createBricks(level)
     -- randomize the number of rows and cols
     local numberOfRows = math.random(1, 5)
     local numberOfCols = math.random(7, 13)
+     -- ensure cols are odd or else it'll be asymetric
+     numberOfCols = numberOfCols % 2 == 0 and (numberOfCols + 1) or numberOfCols
+
 
     -- create the bricks table
     for y = 1, numberOfRows do
         for x = 1, numberOfCols do
             -- calculate the position of the brick and same padding on the side and center them since they are randomized
             b = Brick((x - 1) * 32 + 8 + (13 - numberOfCols) * 16, y * 16)
-            table.insert(bricks, b)
+            b.colour = math.random(1, 4)
+            table.insert(bricks, b) -- TODO
         end
     end
     return bricks
